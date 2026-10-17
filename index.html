@@ -1,0 +1,898 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Birthday Made for You</title>
+
+<style>
+:root {
+  --gold: #e8c76a;
+  --gold-light: #fff0b0;
+  --black: #050505;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #050505;
+  color: white;
+  font-family: Georgia, serif;
+  overflow-x: hidden;
+}
+
+button { cursor: pointer; font: inherit; }
+
+#stars, #petals, #particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#stars {
+  z-index: 0;
+  background: radial-gradient(ellipse, #19160d, #050505 70%);
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #ffe8a0;
+  animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+  to { opacity: .08; transform: scale(.5); }
+}
+
+.petal {
+  position: absolute;
+  top: -10vh;
+  color: #b9974b;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translate(70px, 115vh) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+  display: none;
+  min-height: 100vh;
+  padding: 35px 20px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.screen.active {
+  display: flex;
+  animation: fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  color: #b9ad8d;
+  font: 11px Arial, sans-serif;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+
+.gold {
+  color: var(--gold);
+  text-shadow: 0 0 25px #d9ae4a40;
+}
+
+#nameTitle {
+  font-size: clamp(3.5rem, 12vw, 7rem);
+  letter-spacing: .08em;
+  margin: 20px 0;
+  opacity: 0;
+  transform: translateY(25px);
+  transition: 1.5s ease;
+  text-shadow: 0 0 35px #e8c76a55;
+}
+
+#nameTitle.reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.orbit-wrap {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  max-width: 70vw;
+  max-height: 70vw;
+  display: grid;
+  place-items: center;
+  margin: 20px auto;
+}
+
+.orbit {
+  position: absolute;
+  inset: 8%;
+  border: 1px solid #d6b55a66;
+  border-radius: 50%;
+  animation: spin 14s linear infinite;
+}
+
+.orbit.two {
+  inset: 0;
+  border-color: #fff0b044;
+  animation-duration: 21s;
+}
+
+.orbit::before {
+  content: "";
+  position: absolute;
+  top: 7%;
+  left: 18%;
+  width: 7px;
+  height: 7px;
+  background: var(--gold-light);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--gold);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.heart {
+  font-size: 90px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 16px #e8c76a75);
+  animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.13); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); }
+}
+
+.subline {
+  max-width: 520px;
+  color: #d6cfbb;
+  line-height: 1.8;
+}
+
+.gold-btn {
+  margin-top: 24px;
+  padding: 14px 24px;
+  border: 1px solid var(--gold);
+  background: linear-gradient(135deg, #f8e4a0, #b88b2c);
+  color: #171208;
+  letter-spacing: .1em;
+  font: 12px Arial, sans-serif;
+  text-transform: uppercase;
+  transition: .25s;
+}
+
+.gold-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px #e8c76a50;
+}
+
+.hint {
+  margin-top: 14px;
+  color: #847b66;
+  font: 10px Arial, sans-serif;
+  letter-spacing: .1em;
+}
+
+#impactStage {
+  position: relative;
+  width: min(90vw, 520px);
+  height: 250px;
+  display: grid;
+  place-items: center;
+  margin: 12px 0;
+}
+
+.target-heart {
+  font-size: 105px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 20px #d7a83b70);
+  animation: heartbeat 1.5s infinite;
+}
+
+.arrow {
+  position: absolute;
+  left: -18%;
+  top: 48%;
+  font-size: 48px;
+  color: var(--gold-light);
+  opacity: 0;
+}
+
+.arrow.fly {
+  opacity: 1;
+  animation: arrowFly .8s ease forwards;
+}
+
+@keyframes arrowFly {
+  to { left: 48%; opacity: 0; transform: translateX(20px); }
+}
+
+#flash {
+  position: fixed;
+  inset: 0;
+  background: #fff8d6;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+
+#flash.boom { animation: flash .8s ease-out; }
+
+@keyframes flash {
+  12% { opacity: .85; }
+  100% { opacity: 0; }
+}
+
+.shake { animation: shake .45s ease; }
+
+@keyframes shake {
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.burst {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 12px var(--gold);
+  animation: burst .95s ease-out forwards;
+}
+
+@keyframes burst {
+  to {
+    transform: translate(var(--x), var(--y)) scale(.1);
+    opacity: 0;
+  }
+}
+
+.portal {
+  width: min(67vw, 250px);
+  height: min(67vw, 250px);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  box-shadow: 0 0 25px #e8c76a55, inset 0 0 25px #e8c76a25;
+  animation: portalPulse 2s infinite;
+}
+
+.portal::before, .portal::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid #f8e5a588;
+  border-radius: 50%;
+  animation: spin 8s linear infinite;
+}
+
+.portal::after {
+  inset: 25px;
+  animation-direction: reverse;
+  animation-duration: 5s;
+}
+
+.portal span {
+  font-size: 46px;
+  color: var(--gold-light);
+}
+
+@keyframes portalPulse {
+  50% {
+    box-shadow: 0 0 65px #e8c76a90, inset 0 0 45px #e8c76a45;
+    transform: scale(1.035);
+  }
+}
+
+.message-card {
+  width: min(92vw, 600px);
+  padding: clamp(25px, 6vw, 48px);
+  border: 1px solid #9f823e66;
+  background: linear-gradient(145deg, #14120d, #050505);
+  box-shadow: 0 20px 80px #0009;
+  position: relative;
+}
+
+.message-card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid #d9b75e2b;
+  pointer-events: none;
+}
+
+#typedHeading {
+  white-space: pre-line;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1.25;
+  color: var(--gold-light);
+}
+
+#typedMessage {
+  white-space: pre-line;
+  line-height: 2;
+  font-size: 17px;
+  color: #e6dfce;
+  min-height: 160px;
+}
+
+.typing-cursor::after {
+  content: "";
+  display: inline-block;
+  height: 1em;
+  border-right: 1px solid var(--gold);
+  margin-left: 4px;
+  animation: blink .7s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+.envelope {
+  width: 220px;
+  height: 145px;
+  position: relative;
+  margin: 35px auto;
+  cursor: pointer;
+}
+
+.envelope-base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #d5b35d, #6e501b);
+}
+
+.envelope-base::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(35deg, #b38a31, #f1d77e, #8e6923);
+  clip-path: polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%);
+}
+
+.envelope-flap {
+  position: absolute;
+  inset: 0;
+  background: #e5c46c;
+  clip-path: polygon(0 0, 100% 0, 50% 63%);
+  transform-origin: top;
+  transition: transform .7s;
+  z-index: 3;
+}
+
+.seal {
+  position: absolute;
+  z-index: 4;
+  top: 55px;
+  left: calc(50% - 18px);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #17130a;
+  color: var(--gold);
+  border: 1px solid var(--gold-light);
+}
+
+.letter {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 110px;
+  background: #f3e8c6;
+  color: #4a3817;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0;
+  transition: .8s;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#letterText { white-space: pre-line; }
+
+.envelope.open .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 0;
+}
+
+.envelope.open .seal { opacity: 0; }
+
+.envelope.open .letter {
+  opacity: 1;
+  transform: translateY(-76px);
+  height: 165px;
+}
+
+.forever {
+  font-size: clamp(4rem, 18vw, 8rem);
+  color: var(--gold);
+  animation: float 3s ease-in-out infinite;
+  text-shadow: 0 0 35px #e8c76a55;
+}
+
+@keyframes float {
+  50% { transform: translateY(-12px) scale(1.04); }
+}
+
+.final-quote {
+  font-size: clamp(1.4rem, 5vw, 2.5rem);
+  line-height: 1.5;
+  color: var(--gold-light);
+}
+
+.music-control {
+  position: fixed;
+  right: 16px;
+  top: 16px;
+  z-index: 20;
+  background: #0d0c09;
+  border: 1px solid #d9b75e77;
+  color: var(--gold-light);
+  padding: 10px;
+  font: 10px Arial, sans-serif;
+}
+
+.bars {
+  display: inline-flex;
+  gap: 3px;
+  height: 13px;
+  align-items: center;
+  margin-right: 7px;
+}
+
+.bars i {
+  width: 2px;
+  height: 5px;
+  background: var(--gold);
+  animation: bar .7s infinite alternate;
+}
+
+.bars i:nth-child(2) { animation-delay: .2s; }
+.bars i:nth-child(3) { animation-delay: .4s; }
+.bars.paused i { animation-play-state: paused; }
+
+@keyframes bar {
+  to { height: 13px; }
+}
+
+@media (max-width: 480px) {
+  .screen { padding: 28px 16px; }
+  .music-control { top: 10px; right: 10px; }
+}
+</style>
+</head>
+
+<body>
+<div id="stars"></div>
+<div id="petals"></div>
+<div id="particles"></div>
+<div id="flash"></div>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-control" id="musicButton">
+  <span class="bars" id="bars"><i></i><i></i><i></i><i></i></span>
+  <span id="musicLabel">MUSIC: OFF</span>
+</button>
+
+<!-- SCENE 1: NAME REVEAL -->
+<section class="screen active" id="scene1">
+  <div class="eyebrow">A little universe, made for you</div>
+
+  <div class="orbit-wrap">
+    <div class="orbit"></div>
+    <div class="orbit two"></div>
+    <div class="heart">♥</div>
+  </div>
+
+  <h1 id="nameTitle">X</h1>
+  <p class="subline">Some people make the world brighter just by being in it.</p>
+
+  <button class="gold-btn" id="beginButton">Open Your Surprise</button>
+  <div class="hint">TURN THE SOUND ON FOR THE FULL EXPERIENCE</div>
+</section>
+
+<!-- SCENE 2: ARROW IMPACT -->
+<section class="screen" id="scene2">
+  <div class="eyebrow">One heart. One wish.</div>
+  <h2 class="gold">A little magic, just for you</h2>
+
+  <div id="impactStage">
+    <div class="target-heart">♥</div>
+    <div class="arrow" id="arrow">➶</div>
+  </div>
+
+  <p class="subline">Somewhere between a heartbeat and a wish, you became my favourite person.</p>
+  <button class="gold-btn" id="shootButton">Release the Wish</button>
+</section>
+
+<!-- SCENE 3: PORTAL -->
+<section class="screen" id="scene3">
+  <div class="eyebrow">Beyond every little star</div>
+  <div class="portal"><span>♥</span></div>
+  <h2 class="gold">A world made of wishes</h2>
+  <p class="subline">Step into a little place where every beautiful thought leads back to you.</p>
+  <button class="gold-btn" id="enterButton">Step Inside</button>
+</section>
+
+<!-- SCENE 4: TYPING MESSAGE -->
+<section class="screen" id="scene4">
+  <div class="eyebrow">A message from my heart</div>
+
+  <div class="message-card">
+    <h2 id="typedHeading"></h2>
+    <p id="typedMessage"></p>
+  </div>
+
+  <button class="gold-btn" id="letterButton" style="display:none">
+    There Is One More Thing
+  </button>
+</section>
+
+<!-- SCENE 5: LOVE LETTER -->
+<section class="screen" id="scene5">
+  <div class="eyebrow">A little letter, sealed with love</div>
+  <h2 class="gold">Just for you</h2>
+
+  <div class="envelope" id="envelope" role="button" tabindex="0">
+    <div class="letter">
+      <div id="letterText">You make ordinary moments feel extraordinary.
+
+Thank you for being you.
+You are loved more than these words can ever say. ♥</div>
+    </div>
+    <div class="envelope-base"></div>
+    <div class="envelope-flap"></div>
+    <div class="seal">♥</div>
+  </div>
+
+  <p class="subline" id="envelopeHint">Tap the envelope to open your letter.</p>
+
+  <button class="gold-btn" id="foreverButton" style="display:none">
+    One Last Wish
+  </button>
+</section>
+
+<!-- SCENE 6: FOREVER -->
+<section class="screen" id="scene6">
+  <div class="eyebrow">And if I had a thousand lifetimes...</div>
+  <div class="forever">∞</div>
+
+  <h2 class="final-quote">
+    In Every Lifetime,<br>
+    <span class="gold">I Would Choose You.</span>
+  </h2>
+
+  <p class="subline">Happy Birthday, my favourite person. Today, tomorrow, and in every little forever. ♥</p>
+  <button class="gold-btn" id="replayButton">Experience It Again</button>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+const scenes = [...document.querySelectorAll('.screen')];
+
+let typingSession = 0;
+let typingTimers = [];
+let musicOn = false;
+let audioContext = null;
+
+function showScene(id) {
+  scenes.forEach(scene => {
+    scene.classList.toggle('active', scene.id === id);
+  });
+}
+
+// STARS AND FALLING PETALS
+function setupBackground() {
+  for (let i = 0; i < 90; i++) {
+    const star = document.createElement('span');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDelay = Math.random() * 3 + 's';
+    star.style.animationDuration = (2 + Math.random() * 4) + 's';
+    $('stars').appendChild(star);
+  }
+
+  const symbols = ['✦', '✧', '❧', '✿'];
+
+  for (let i = 0; i < 18; i++) {
+    const petal = document.createElement('span');
+    petal.className = 'petal';
+    petal.textContent = symbols[i % symbols.length];
+    petal.style.left = Math.random() * 100 + '%';
+    petal.style.animationDuration = (10 + Math.random() * 13) + 's';
+    petal.style.animationDelay = (-Math.random() * 20) + 's';
+    $('petals').appendChild(petal);
+  }
+}
+
+setupBackground();
+
+// KEYBOARD TYPING SOUND
+function playTypingSound(character) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    if (!audioContext) audioContext = new AudioCtx();
+    if (audioContext.state === 'suspended') audioContext.resume();
+
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(
+      character === ' ' ? 500 : 780 + Math.random() * 260,
+      now
+    );
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(
+      character === ' ' ? 0.012 : 0.045,
+      now + 0.004
+    );
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.04);
+  } catch (error) {
+    // Typing sound may be unavailable in some browsers.
+  }
+}
+
+// TYPEWRITER EFFECT
+function typeText(element, text, speed, session, callback, sound = true) {
+  if (session !== typingSession) return;
+
+  element.textContent = '';
+  element.classList.add('typing-cursor');
+
+  let index = 0;
+
+  function writeCharacter() {
+    if (session !== typingSession) return;
+
+    element.textContent = text.slice(0, index);
+
+    if (index < text.length && sound && text[index] !== '\n') {
+      playTypingSound(text[index]);
+    }
+
+    index++;
+
+    if (index <= text.length) {
+      typingTimers.push(setTimeout(writeCharacter, speed));
+    } else {
+      element.classList.remove('typing-cursor');
+      if (callback) callback();
+    }
+  }
+
+  writeCharacter();
+}
+
+function stopTyping() {
+  typingSession++;
+  typingTimers.forEach(clearTimeout);
+  typingTimers = [];
+
+  $('typedHeading').classList.remove('typing-cursor');
+  $('typedMessage').classList.remove('typing-cursor');
+}
+
+function startBirthdayTyping() {
+  stopTyping();
+
+  const session = typingSession;
+  $('letterButton').style.display = 'none';
+
+  typeText(
+    $('typedHeading'),
+    'Happy Birthday,\nMy Love.',
+    170,
+    session,
+    () => {
+      typeText(
+        $('typedMessage'),
+        'You are my favourite person,\nmy happiest thought,\nand my forever love.\n\nMay your world always shine\nas beautifully as your heart.\n\nForever yours. ♥',
+        75,
+        session,
+        () => {
+          $('letterButton').style.display = 'inline-block';
+        },
+        true
+      );
+    },
+    true
+  );
+}
+
+// PARTICLE EXPLOSION
+function burstParticles(count = 70) {
+  const stage = $('impactStage');
+  const rect = stage.getBoundingClientRect();
+
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'burst';
+
+    dot.style.left = centerX + 'px';
+    dot.style.top = centerY + 'px';
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 50 + Math.random() * Math.min(window.innerWidth * .4, 230);
+
+    dot.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+    dot.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+
+    const size = 2 + Math.random() * 5;
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+
+    $('particles').appendChild(dot);
+    setTimeout(() => dot.remove(), 1100);
+  }
+}
+
+// MUSIC ON / OFF
+function toggleMusic() {
+  const music = $('bgMusic');
+
+  if (musicOn) {
+    music.pause();
+    musicOn = false;
+    $('musicLabel').textContent = 'MUSIC: OFF';
+    $('bars').classList.add('paused');
+  } else {
+    music.play().then(() => {
+      musicOn = true;
+      $('musicLabel').textContent = 'MUSIC: ON';
+      $('bars').classList.remove('paused');
+    }).catch(() => {
+      alert('Music could not start. Check that music.mp3 is in the same folder as index.html, then click MUSIC again.');
+    });
+  }
+}
+
+$('musicButton').addEventListener('click', toggleMusic);
+
+// SCENE 1 → SCENE 2
+$('beginButton').addEventListener('click', () => {
+  $('nameTitle').classList.add('reveal');
+
+  if (!musicOn) toggleMusic();
+
+  showScene('scene2');
+});
+
+// ARROW IMPACT → PORTAL
+$('shootButton').addEventListener('click', () => {
+  $('shootButton').disabled = true;
+
+  $('arrow').classList.remove('fly');
+  void $('arrow').offsetWidth;
+  $('arrow').classList.add('fly');
+
+  document.body.classList.remove('shake');
+  void document.body.offsetWidth;
+  document.body.classList.add('shake');
+
+  $('flash').classList.remove('boom');
+  void $('flash').offsetWidth;
+  $('flash').classList.add('boom');
+
+  burstParticles();
+
+  setTimeout(() => {
+    showScene('scene3');
+    $('shootButton').disabled = false;
+  }, 1050);
+});
+
+// PORTAL → TYPING MESSAGE
+$('enterButton').addEventListener('click', () => {
+  showScene('scene4');
+  startBirthdayTyping();
+});
+
+// MESSAGE → LOVE LETTER
+$('letterButton').addEventListener('click', () => {
+  stopTyping();
+  showScene('scene5');
+});
+
+// OPEN THE ENVELOPE
+function openEnvelope() {
+  $('envelope').classList.add('open');
+  $('envelopeHint').textContent =
+    'A little reminder: you are loved, today and always. ♥';
+
+  $('foreverButton').style.display = 'inline-block';
+}
+
+$('envelope').addEventListener('click', openEnvelope);
+
+$('envelope').addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    openEnvelope();
+  }
+});
+
+// LOVE LETTER → FOREVER
+$('foreverButton').addEventListener('click', () => {
+  showScene('scene6');
+});
+
+// REPLAY ALL SCENES
+$('replayButton').addEventListener('click', () => {
+  stopTyping();
+
+  $('nameTitle').classList.remove('reveal');
+  $('envelope').classList.remove('open');
+
+  $('envelopeHint').textContent = 'Tap the envelope to open your letter.';
+  $('foreverButton').style.display = 'none';
+  $('letterButton').style.display = 'none';
+  $('shootButton').disabled = false;
+
+  showScene('scene1');
+
+  setTimeout(() => {
+    $('nameTitle').classList.add('reveal');
+  }, 400);
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => $('nameTitle').classList.add('reveal'), 500);
+});
+</script>
+</body>
+</html>
